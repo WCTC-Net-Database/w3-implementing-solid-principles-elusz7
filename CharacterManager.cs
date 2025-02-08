@@ -105,8 +105,9 @@ public class CharacterManager
         var name = AnsiConsole.Prompt(
            new TextPrompt<string>("Search for [deepskyblue1]character[/]:"));
 
-        var character = characters.FirstOrDefault(c => c.Name.Contains(name));
-        if (character != null)
+        var matchingCharacters = characters.Where(c => c.Name.Contains(name)).ToList();
+
+        if (matchingCharacters.Any())
         {
             var table = new Table();
 
@@ -116,19 +117,22 @@ public class CharacterManager
             table.AddColumn("[blue]Health[/]");
             table.AddColumn("[orange3]Equipment[/]");
 
-            table.AddRow(
-                character.Name,
-                character.Class,
-                character.Level.ToString(),
-                character.Health.ToString(),
-                string.Join(", ", character.Equipment)
-            );
+            foreach (var character in matchingCharacters)
+            {
+                table.AddRow(
+                    character.Name,
+                    character.Class,
+                    character.Level.ToString(),
+                    character.Health.ToString(),
+                    string.Join(", ", character.Equipment)
+                );
+            }
 
             AnsiConsole.Write(table);
         }
         else
         {
-            AnsiConsole.MarkupLine("[deepskyblue1]Character[/] not found.");
+            AnsiConsole.MarkupLine($"No [deepskyblue1]character(s)[/] found that matches [red]{name}[/].");
         }
     }
 
@@ -182,7 +186,7 @@ public class CharacterManager
         if (index > -1)
         {
             characters[index].LevelUp();
-            AnsiConsole.MarkupLine($":sparkles: [red]{name}[/] has [deeppink3_1]leveled up[/]! :sparkles:");
+            AnsiConsole.MarkupLine($":sparkles: [red]{characters[index].Name}[/] is now [deeppink3_1]level[/] {characters[index].Level}! :sparkles:");
             writer.WriteCharacters(characters);
         }
         else
